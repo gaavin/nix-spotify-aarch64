@@ -2,8 +2,10 @@
   lib,
   chromium,
   coreutils,
+  fetchurl,
   makeDesktopItem,
-  runCommand,
+  squashfs-tools,
+  stdenvNoCC,
   symlinkJoin,
   writeShellApplication,
   pname ? "nix-spotify-aarch64",
@@ -20,6 +22,34 @@ let
 
   chromiumWV = chromium.override {
     enableWideVine = true;
+  };
+
+  # Official client icons from the same snap nixpkgs uses. Only the PNG
+  # icons are kept; the x86_64 binary is discarded.
+  icons = stdenvNoCC.mkDerivation {
+    name = "spotify-client-icons";
+    src = fetchurl {
+      name = "spotify-1.2.92.147.g5b8f9367-97.snap";
+      url = "https://api.snapcraft.io/api/v1/snaps/download/pOBIoZ2LrCB3rDohMxoYGnbN14EHOgD7_97.snap";
+      hash = "sha512-Gk0/WjfgJZIG+2w4teaznAk/7evOXUsuCikDvOhmhAQ5ksQV99VeiYnE+OJf7hHnrPaHoueERvIkk7Psed/kwA==";
+    };
+    nativeBuildInputs = [ squashfs-tools ];
+    dontUnpack = true;
+    installPhase = ''
+      runHook preInstall
+      unsquashfs -q "$src" '/usr/share/spotify/icons'
+      for i in 16 22 24 32 48 64 128 256 512; do
+        install -Dm644 squashfs-root/usr/share/spotify/icons/spotify-linux-$i.png \
+          "$out/share/icons/hicolor/''${i}x''${i}/apps/spotify-client.png"
+        ln -s spotify-client.png "$out/share/icons/hicolor/''${i}x''${i}/apps/spotify.png"
+      done
+      runHook postInstall
+    '';
+    meta = {
+      description = "Official Spotify desktop icons";
+      license = lib.licenses.unfree;
+      platforms = [ "aarch64-linux" ];
+    };
   };
 
   script = writeShellApplication {
@@ -60,7 +90,7 @@ let
   desktopItem = makeDesktopItem {
     name = "spotify";
     exec = "${script}/bin/spotify %U";
-    icon = "nix-spotify-aarch64";
+    icon = "spotify-client";
     comment = "Play music from Spotify";
     desktopName = "Spotify";
     genericName = "Music Player";
@@ -80,21 +110,16 @@ let
       "streaming"
     ];
   };
-
-  iconShare = runCommand "nix-spotify-aarch64-icon" { } ''
-    install -Dm644 ${../../assets/nix-spotify-aarch64.svg} \
-      "$out/share/icons/hicolor/scalable/apps/nix-spotify-aarch64.svg"
-  '';
 in
 symlinkJoin {
   name = pname;
   paths = [
     script
     desktopItem
-    iconShare
+    icons
   ];
   passthru = {
-    inherit chromiumWV;
+    inherit chromiumWV icons;
   };
   meta = {
     description = "Spotify desktop app for aarch64 (Chromium + Widevine web player)";
