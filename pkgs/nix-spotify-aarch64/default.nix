@@ -72,8 +72,10 @@ let
 
       extra_args=( ${escapeShellArgs extraArgs} )
 
+      # Keep cookie encryption in this profile; KWallet autodetect drops login on restart.
       exec ${escapeShellArg (getExe chromiumWV)} \
         --user-data-dir="$DATA_DIR" \
+        --password-store=basic \
         --class=spotify \
         --name=Spotify \
         --no-first-run \
