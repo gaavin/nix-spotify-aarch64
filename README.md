@@ -100,7 +100,7 @@ Sign in inside the app window. Profile data lives under `~/.local/share/nix-spot
 |-------|----------|
 | No sound / "Spotify can't play this" | Widevine must load; this package sets `chromium.override { enableWideVine = true; }`. Rebuild with `allowUnfree`. |
 | Window looks like a browser tab | Launch via the `spotify` wrapper (`--app=https://open.spotify.com`), not Chromium itself. |
-| Signed out on every launch | The wrapper uses `--password-store=basic` so cookies live in the profile, not KWallet. Sign in once after updating. To start clean, remove `~/.local/share/nix-spotify-aarch64/`. |
+| Signed out on every launch | Chromium's Secret Portal (KWallet) was encrypting cookies despite `--password-store=basic`. The wrapper now disables `DbusSecretPortal` / `SecretPortalKeyProviderUseForEncryption` and seeds session restore. Sign in **once** after updating (old portal-encrypted cookies are wiped). To start clean, remove `~/.local/share/nix-spotify-aarch64/`. |
 | Scale is wrong | `programs.nix-spotify-aarch64.extraArgs = [ "--force-device-scale-factor=1.25" ];` |
 | Start fresh | Remove `~/.local/share/nix-spotify-aarch64/` |
 
