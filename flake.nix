@@ -1,5 +1,5 @@
 {
-  description = "Declarative Spotify on Nix (native Chromium app + Widevine, including aarch64)";
+  description = "Declarative Spotify on aarch64 Nix (native Chromium app + Widevine)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -11,50 +11,37 @@
       nixpkgs,
     }:
     let
-      inherit (nixpkgs) lib;
-      forAllSystems = lib.genAttrs [
-        "aarch64-linux"
-        "x86_64-linux"
-      ];
-      pkgsFor =
-        system:
-        import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-        };
+      system = "aarch64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+
+      packages = rec {
+        nix-spotify-aarch64 = pkgs.callPackage ./pkgs/nix-spotify-aarch64 { };
+        default = nix-spotify-aarch64;
+      };
     in
     {
-      packages = forAllSystems (
-        system:
-        let
-          pkgs = pkgsFor system;
-          spotify = pkgs.callPackage ./pkgs/spotify { };
-        in
-        {
-          inherit spotify;
-          default = spotify;
-        }
-      );
+      packages.${system} = packages;
 
-      apps = forAllSystems (system: {
-        default = {
-          type = "app";
-          program = "${self.packages.${system}.spotify}/bin/spotify";
-        };
-      });
+      apps.${system}.default = {
+        type = "app";
+        program = "${packages.nix-spotify-aarch64}/bin/spotify";
+      };
 
-      homeModules.spotify =
+      homeModules.nix-spotify-aarch64 =
         { lib, pkgs, ... }:
         {
-          imports = [ ./modules/home-manager/spotify.nix ];
-          programs.spotify.package = lib.mkDefault (
-            self.packages.${pkgs.stdenv.hostPlatform.system}.spotify
+          imports = [ ./modules/home-manager/nix-spotify-aarch64.nix ];
+          programs.nix-spotify-aarch64.package = lib.mkDefault (
+            self.packages.${pkgs.stdenv.hostPlatform.system}.nix-spotify-aarch64
           );
         };
-      homeModules.default = self.homeModules.spotify;
+      homeModules.default = self.homeModules.nix-spotify-aarch64;
 
       overlays.default = final: _prev: {
-        inherit (self.packages.${final.stdenv.hostPlatform.system}) spotify;
+        inherit (self.packages.${final.stdenv.hostPlatform.system} or packages) nix-spotify-aarch64;
       };
     };
 }

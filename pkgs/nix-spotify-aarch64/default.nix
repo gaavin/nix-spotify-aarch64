@@ -6,8 +6,8 @@
   runCommand,
   symlinkJoin,
   writeShellApplication,
-  pname ? "spotify",
-  location ? "$HOME/.local/share/nix-spotify",
+  pname ? "nix-spotify-aarch64",
+  location ? "$HOME/.local/share/nix-spotify-aarch64",
   extraArgs ? [ ],
 }:
 
@@ -23,7 +23,7 @@ let
   };
 
   script = writeShellApplication {
-    name = pname;
+    name = "spotify";
     runtimeInputs = [
       coreutils
       chromiumWV
@@ -58,9 +58,9 @@ let
   };
 
   desktopItem = makeDesktopItem {
-    name = pname;
-    exec = "${script}/bin/${pname} %U";
-    icon = "nix-spotify";
+    name = "spotify";
+    exec = "${script}/bin/spotify %U";
+    icon = "nix-spotify-aarch64";
     comment = "Play music from Spotify";
     desktopName = "Spotify";
     genericName = "Music Player";
@@ -81,9 +81,9 @@ let
     ];
   };
 
-  iconShare = runCommand "nix-spotify-icon" { } ''
-    install -Dm644 ${../../assets/nix-spotify.svg} \
-      "$out/share/icons/hicolor/scalable/apps/nix-spotify.svg"
+  iconShare = runCommand "nix-spotify-aarch64-icon" { } ''
+    install -Dm644 ${../../assets/nix-spotify-aarch64.svg} \
+      "$out/share/icons/hicolor/scalable/apps/nix-spotify-aarch64.svg"
   '';
 in
 symlinkJoin {
@@ -97,13 +97,10 @@ symlinkJoin {
     inherit chromiumWV;
   };
   meta = {
-    description = "Spotify desktop app (Chromium + Widevine web player)";
-    homepage = "https://github.com/gaavin/nix-spotify";
+    description = "Spotify desktop app for aarch64 (Chromium + Widevine web player)";
+    homepage = "https://github.com/gaavin/nix-spotify-aarch64";
     license = lib.licenses.unfree;
-    platforms = [
-      "aarch64-linux"
-      "x86_64-linux"
-    ];
-    mainProgram = pname;
+    platforms = [ "aarch64-linux" ];
+    mainProgram = "spotify";
   };
 }
