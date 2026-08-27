@@ -9,9 +9,6 @@
 
 </div>
 
-> [!WARNING]
-> **This project was primarily written by an LLM (AI). Review the code yourself before running it. Use at your own risk.**
-
 Spotify does not ship an ARM64 Linux desktop client. nixpkgs `spotify` is `x86_64-linux` (and Darwin) only. This flake wraps the official web player in Chromium with [Widevine](https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/wi/widevine-cdm/aarch64-linux.nix) (Asahi 16K page fixup included upstream) so playback works on Apple Silicon NixOS without emulating x86.
 
 Use nixpkgs `spotify` on `x86_64-linux`. This flake is `aarch64-linux` only.
