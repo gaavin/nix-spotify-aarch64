@@ -30,9 +30,9 @@ let
   icons = stdenvNoCC.mkDerivation {
     name = "spotify-client-icons";
     src = fetchurl {
-      name = "spotify-1.2.92.147.g5b8f9367-97.snap";
-      url = "https://api.snapcraft.io/api/v1/snaps/download/pOBIoZ2LrCB3rDohMxoYGnbN14EHOgD7_97.snap";
-      hash = "sha512-Gk0/WjfgJZIG+2w4teaznAk/7evOXUsuCikDvOhmhAQ5ksQV99VeiYnE+OJf7hHnrPaHoueERvIkk7Psed/kwA==";
+      name = "spotify-1.2.95.453.g0eeebbed-99.snap";
+      url = "https://api.snapcraft.io/api/v1/snaps/download/pOBIoZ2LrCB3rDohMxoYGnbN14EHOgD7_99.snap";
+      hash = "sha512-IRjGDAdXY4O9KkMpNLKnPxgrQp3WmpHbaAIvM6Xq6969HON39dajHebVQAxZUvKOSWOeS9W1yn1Cl/3uFMbwsw==";
     };
     nativeBuildInputs = [ squashfs-tools ];
     dontUnpack = true;
